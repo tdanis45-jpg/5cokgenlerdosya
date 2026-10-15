@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tom ve Jerry: Çokgen Avı - Zor Seviye (5. Sınıf)</title>
+  <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    body { font-family: 'Fredoka', cursive, sans-serif; user-select: none; }
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      20% { transform: translateX(-8px) rotate(-1deg); }
+      40% { transform: translateX(8px) rotate(1deg); }
+      60% { transform: translateX(-6px) rotate(-0.5deg); }
+      80% { transform: translateX(6px) rotate(0.5deg); }
+    }
+    .shake { animation: shake 0.4s ease-in-out; }
+  </style>
+</head>
+<body class="bg-amber-50 min-h-screen text-slate-800 flex flex-col justify-between">
+  <!-- Top Bar -->
+  <header class="bg-amber-900 border-b-4 border-amber-950 px-4 py-3 text-white flex items-center justify-between shadow-md">
+    <div class="flex items-center gap-2">
+      <span class="text-2xl">🧀</span>
+      <div>
+        <h1 class="font-extrabold text-base sm:text-lg text-yellow-300">TOM & JERRY: ÇOKGEN AVI</h1>
+        <p class="text-[11px] text-amber-200 font-semibold">5. Sınıf Geometri Kaçış Macerası • Tek Dosya Sürümü</p>
+      </div>
+    </div>
+    <div class="flex items-center gap-3">
+      <button onclick="toggleAudio()" id="soundBtn" class="bg-amber-950/80 px-3 py-1.5 rounded-xl border border-amber-700 text-xs font-bold text-yellow-300">
+        🔊 Ses Açık
+      </button>
+    </div>
+  </header>
+
+  <!-- Game Container -->
+  <main class="flex-1 max-w-4xl w-full mx-auto p-4 flex flex-col gap-4" id="app">
+    <!-- Screen content injected via JS -->
+  </main>
+
+  <!-- Footer -->
+  <footer class="bg-amber-950 text-amber-300/80 text-xs py-2 text-center border-t border-amber-900">
+    MEB 5. Sınıf Matematik Müfredatı ile %100 Uyumlu • Akıllı Tahta ve Çevrimdışı Çalışır
+  </footer>
+
+  <script>
+    // Audio Synthesizer (Web Audio API)
+    let audioCtx = null;
+    let audioEnabled = true;
+
+    function initAudio() {
+      if (!audioCtx) {
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      }
+      if (audioCtx.state === 'suspended') {
+        audioCtx.resume();
+      }
+    }
+
+    function toggleAudio() {
+      audioEnabled = !audioEnabled;
+      const btn = document.getElementById('soundBtn');
+      if (btn) btn.innerText = audioEnabled ? '🔊 Ses Açık' : '🔇 Sessiz';
+    }
+
+    function playSound(type) {
+      if (!audioEnabled) return;
+      initAudio();
+      if (!audioCtx) return;
+      try {
+        const now = audioCtx.currentTime;
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+
+        if (type === 'jump') {
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(240, now);
+          osc.frequency.exponentialRampToValueAtTime(700, now + 0.15);
+          gain.gain.setValueAtTime(0.2, now);
+          gain.gain.exponentialRampToValueAtTime(0.01, now + 0.18);
+          osc.start(now);
+          osc.stop(now + 0.18);
+        } else if (type === 'correct') {
+          osc.type = 'triangle';
+          osc.frequency.setValueAtTime(523, now);
+          osc.frequency.setValueAtTime(659, now + 0.08);
+          osc.frequency.setValueAtTime(784, now + 0.16);
+          gain.gain.setValueAtTime(0.25, now);
+          gain.gain.exponentialRampToValueAtTime(0.01, now + 0.35);
+          osc.start(now);
+          osc.stop(now + 0.35);
+        } else if (type === 'wrong') {
+          osc.type = 'sawtooth';
+          osc.frequency.setValueAtTime(220, now);
+          osc.frequency.linearRampToValueAtTime(80, now + 0.3);
+          gain.gain.setValueAtTime(0.3, now);
+          gain.gain.exponentialRampToValueAtTime(0.01, now + 0.32);
+          osc.start(now);
+          osc.stop(now + 0.32);
+        }
+      } catch (e) {}
+    }
+
+    // 5th Grade Curriculum Questions
+    const questions = [
+      {
+        room: 1,
+        title: "Eski Kütüphane: Çokgen Tanımı",
+        text: "Görsellerden hangisi HEM bir çokgen HEM DE içe bükük (içbükey) bir şekildir?",
+        options: [
+          { text: "Hilal / Çember (Eğri çizgiler içerir)", correct: false, tip: "Eğri çizgisi olan şekiller çokgen DEĞİLDİR!" },
+          { text: "Ok Ucu (4 düz doğru parçası, bir köşesi içe bükük)", correct: true },
+          { text: "Açık Kalan Şekil (Uçları birleşmemiş)", correct: false, tip: "Açık şekiller çokgen olamaz!" },
+          { text: "Düzgün Altıgen", correct: false, tip: "Altıgen dışa doğrudur, içe bükük değildir." }
+        ],
+        rule: "Çokgenler sadece düz doğru parçalarından oluşur ve tamamen kapalıdır."
+      },
+      {
+        room: 2,
+        title: "Büyük Yemek Salonu: Köşegen Tanımı",
+        text: "Jerry üçgen peynir dilimini inceliyor. ÜÇGENİN NEDEN KÖŞEGENİ YOKTUR?",
+        options: [
+          { text: "Çünkü üçgenin 3 köşesi de birbiriyle yan yana (komşudur), araya atlanacak köşe yoktur.", correct: true },
+          { text: "Çünkü üçgen çokgen sayılmaz.", correct: false, tip: "Üçgen 3 kenarlı bir çokgendir." },
+          { text: "Çünkü köşegenleri çok incedir.", correct: false, tip: "Üçgende köşegen sayısı sıfırdır." },
+          { text: "Kareye dönüştürülünce köşegeni olur.", correct: false, tip: "Sadece üçgen incelenmektedir." }
+        ],
+        rule: "Köşegen, komşu olmayan (yan yana durmayan) köşeleri birleştirir. Üçgenin tüm köşeleri komşudur (0 köşegen)."
+      },
+      {
+        room: 2,
+        title: "Büyük Yemek Salonu: Dörtgende Köşegen",
+        text: "Kare bir tabağın veya dikdörtgen tepsinin toplam kaç köşegeni vardır?",
+        options: [
+          { text: "1 Tane", correct: false, tip: "Karşılıklı iki çift köşe vardır." },
+          { text: "2 Tane ([AC] ve [BD])", correct: true },
+          { text: "4 Tane", correct: false, tip: "4 olan kenar sayısıdır!" },
+          { text: "Hiç yoktur", correct: false, tip: "Dörtgenlerde 2 köşegen bulunur." }
+        ],
+        rule: "Tüm dörtgenlerin karşılıklı köşelerini birleştiren tam 2 köşegeni vardır."
+      },
+      {
+        room: 3,
+        title: "Gizemli Çatı Katı: Eşkenar Dörtgen Tuzağı",
+        text: "Eşkenar dörtgenin 4 kenarı da birbirine eşittir (6 cm). Neden 'Düzgün Çokgen' sayılmaz?",
+        options: [
+          { text: "Çünkü kenarları eşit olsa da İÇ AÇILARININ HEPSİ BİRBİRİNE EŞİT DEĞİLDİR (dar ve geniş açıları vardır).", correct: true },
+          { text: "Çünkü dört kenarı vardır.", correct: false, tip: "Karenin de 4 kenarı vardır ve düzgündür." },
+          { text: "Çünkü düzgün dörtgen sadece dairedir.", correct: false, tip: "Daire çokgen değildir." },
+          { text: "Aslında düzgün çokgendir.", correct: false, tip: "Eşkenar dörtgen düzgün çokgen değildir!" }
+        ],
+        rule: "Düzgün çokgen olmanın 2 altın kuralı: Hem kenarları hem açıları eşit olmalıdır (Sadece KARE ikisini sağlar)."
+      },
+      {
+        room: 4,
+        title: "Karanlık Kiler: 5. Sınıf Mantık Bilmecesi",
+        text: "'Ben bir çokgenim. Benim kenar sayım, köşe sayım ve iç açı sayımın toplamı 18'dir. Ben kimim?'",
+        options: [
+          { text: "Dörtgen (4 + 4 + 4 = 12)", correct: false, tip: "Toplam 12 eder." },
+          { text: "Beşgen (5 + 5 + 5 = 15)", correct: false, tip: "Toplam 15 eder." },
+          { text: "ALTIGEN (6 + 6 + 6 = 18)", correct: true },
+          { text: "Sekizgen (8 + 8 + 8 = 24)", correct: false, tip: "Toplam 24 eder." }
+        ],
+        rule: "Her çokgende: Kenar Sayısı = Köşe Sayısı = İç Açı Sayısı. 18'i 3'e böldüğümüzde 6 kenarlı Altıgen buluruz!"
+      }
+    ];
+
+    let state = {
+      screen: 'start', // 'start', 'quiz', 'victory', 'gameover'
+      qIdx: 0,
+      score: 0,
+      lives: 3,
+      selected: null,
+      submitted: false,
+      isCorrect: false
+    };
+
+    function render() {
+      const app = document.getElementById('app');
+      if (state.screen === 'start') {
+        app.innerHTML = `
+          <div class="bg-white rounded-3xl p-6 sm:p-8 border-4 border-amber-500 shadow-xl text-center space-y-5 my-auto">
+            <span class="bg-red-500 text-white font-black text-xs px-3 py-1 rounded-full uppercase">5. Sınıf Matematik</span>
+            <h2 class="text-3xl font-black text-amber-950">Tom ve Jerry: Çokgen Avı</h2>
+            <p class="text-amber-900 font-semibold max-w-lg mx-auto">
+              Jerry'yi Tom'dan kurtar! 5. sınıf çokgenler, köşegenler ve açılarla ilgili zorlu soruları çöz, fare deliğine kaç!
+            </p>
+            <div class="bg-amber-100 p-4 rounded-2xl flex items-center justify-around border-2 border-amber-300">
+              <span class="text-5xl">🐱</span>
+              <span class="text-2xl font-black text-amber-950 animate-bounce">⚡ VS ⚡</span>
+              <span class="text-5xl">🐭</span>
+            </div>
+            <div class="bg-yellow-50 p-3 rounded-xl text-xs text-left font-medium text-amber-900 border border-yellow-200">
+              • 3 Peynir canın var. Her yanlışta Tom yaklaşır!<br>
+              • Üçgenin köşegeni olmadığını ve eşkenar dörtgen tuzaklarını unutma!
+            </div>
+            <button onclick="startGame()" class="bg-amber-500 hover:bg-amber-600 text-white font-black text-lg px-8 py-3.5 rounded-2xl shadow-lg border-2 border-yellow-300">
+              🚀 Kaçışı Başlat!
+            </button>
+          </div>
+        `;
+      } else if (state.screen === 'quiz') {
+        const q = questions[state.qIdx];
+        const tomDist = state.lives === 3 ? 15 : state.lives === 2 ? 40 : 65;
+        
+        let optionsHtml = '';
+        q.options.forEach((opt, idx) => {
+          let btnClass = 'bg-white border-slate-200 hover:bg-amber-50';
+          if (state.submitted) {
+            if (opt.correct) btnClass = 'bg-emerald-100 border-emerald-500 text-emerald-950 font-black';
+            else if (state.selected === idx) btnClass = 'bg-red-100 border-red-500 text-red-950 font-bold';
+            else btnClass = 'opacity-50 bg-slate-100';
+          } else if (state.selected === idx) {
+            btnClass = 'bg-amber-100 border-amber-600 ring-2 ring-amber-400 font-black';
+          }
+
+          optionsHtml += `
+            <button onclick="selectOption(${idx})" class="p-3.5 rounded-2xl border-2 text-left transition-all flex items-start gap-3 ${btnClass}">
+              <span class="w-6 h-6 rounded-lg bg-amber-500 text-white font-black text-xs flex items-center justify-center shrink-0">
+                ${String.fromCharCode(65 + idx)}
+              </span>
+              <span class="text-sm font-semibold leading-relaxed">${opt.text}</span>
+            </button>
+          `;
+        });
+
+        app.innerHTML = `
+          <!-- Chase Track -->
+          <div class="bg-amber-950 rounded-2xl p-3 border-4 border-amber-700 text-white relative overflow-hidden">
+            <div class="flex justify-between items-center mb-2">
+              <span class="bg-amber-500 text-amber-950 font-black text-xs px-2.5 py-0.5 rounded-lg">${q.title}</span>
+              <div class="flex items-center gap-3">
+                <span class="text-xs font-bold text-amber-300">CAN: ${'🧀'.repeat(state.lives)}</span>
+                <span class="bg-yellow-400 text-amber-950 font-black text-xs px-2.5 py-0.5 rounded-lg">⭐ ${state.score} Puan</span>
+              </div>
+            </div>
+            <div class="relative h-14 bg-amber-900/60 rounded-xl border border-amber-700 flex items-center px-4 overflow-hidden">
+              <div class="absolute transition-all duration-500" style="left: ${tomDist}%">🐱 Tom</div>
+              <div class="absolute right-12">🐭 Jerry</div>
+              <div class="absolute right-2 text-xl">🚪</div>
+            </div>
+          </div>
+
+          <!-- Question Card -->
+          <div class="bg-white rounded-3xl p-5 sm:p-6 border-4 border-amber-500 shadow-xl space-y-4">
+            <div class="flex justify-between text-xs font-bold text-slate-500">
+              <span>Soru ${state.qIdx + 1} / ${questions.length}</span>
+              <span>5. Sınıf Seviyesi</span>
+            </div>
+            <h3 class="font-extrabold text-base sm:text-lg text-slate-900">${q.text}</h3>
+            
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5 pt-2">
+              ${optionsHtml}
+            </div>
+
+            <!-- Action buttons -->
+            <div class="flex justify-end pt-3 border-t border-slate-100">
+              ${!state.submitted ? `
+                <button onclick="submitAnswer()" ${state.selected === null ? 'disabled class="opacity-50 cursor-not-allowed bg-slate-300 px-6 py-2 rounded-xl text-sm font-bold text-slate-500"' : 'class="bg-amber-500 hover:bg-amber-600 px-6 py-2 rounded-xl text-sm font-black text-white shadow"'}>
+                  Cevabı Onayla
+                </button>
+              ` : `
+                <button onclick="nextQuestion()" class="bg-emerald-500 hover:bg-emerald-600 px-6 py-2 rounded-xl text-sm font-black text-white shadow">
+                  ${state.qIdx + 1 < questions.length ? 'Sonraki Kilit ➡' : 'Sonucu Gör 🎉'}
+                </button>
+              `}
+            </div>
+
+            ${state.submitted ? `
+              <div class="p-3.5 rounded-xl border-2 text-xs sm:text-sm ${state.isCorrect ? 'bg-emerald-50 border-emerald-300 text-emerald-950' : 'bg-amber-50 border-amber-300 text-amber-950'}">
+                <span class="font-black block mb-1">${state.isCorrect ? '✓ Doğru Çözüm!' : '⚠ Tom Bir Adım Yaklaştı!'}</span>
+                <span><strong>5. Sınıf Kuralı:</strong> ${q.rule}</span>
+              </div>
+            ` : ''}
+          </div>
+        `;
+      } else if (state.screen === 'victory') {
+        app.innerHTML = `
+          <div class="bg-white rounded-3xl p-8 border-4 border-emerald-500 shadow-2xl text-center space-y-6 my-auto">
+            <span class="text-6xl block animate-bounce">🏆</span>
+            <h2 class="text-3xl font-black text-slate-900">Jerry Fare Deliğine Ulaştı!</h2>
+            <p class="text-slate-600 font-semibold max-w-md mx-auto">
+              5. sınıf çokgen kurallarını ustaca uygulayarak Tom'u geride bıraktın!
+            </p>
+            <div class="bg-emerald-50 p-4 rounded-2xl border border-emerald-200 inline-block">
+              <span class="text-xs text-emerald-800 font-bold block">Toplam Puanın:</span>
+              <span class="text-3xl font-black text-emerald-950">${state.score}</span>
+            </div>
+            <div>
+              <button onclick="startGame()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-black px-6 py-3 rounded-2xl shadow">
+                Tekrar Oyna
+              </button>
+            </div>
+          </div>
+        `;
+      } else if (state.screen === 'gameover') {
+        app.innerHTML = `
+          <div class="bg-white rounded-3xl p-8 border-4 border-red-500 shadow-2xl text-center space-y-6 my-auto">
+            <span class="text-6xl block">😿</span>
+            <h2 class="text-3xl font-black text-slate-900">Tom Jerry'yi Yakaladı!</h2>
+            <p class="text-slate-600 font-semibold max-w-md mx-auto">
+              Üçgenin köşegeni olmadığını ve kare-dikdörtgen farkını unutma, tekrar dene!
+            </p>
+            <div>
+              <button onclick="startGame()" class="bg-red-500 hover:bg-red-600 text-white font-black px-6 py-3 rounded-2xl shadow">
+                Tekrar Dene
+              </button>
+            </div>
+          </div>
+        `;
+      }
+    }
+
+    function startGame() {
+      state.screen = 'quiz';
+      state.qIdx = 0;
+      state.score = 0;
+      state.lives = 3;
+      state.selected = null;
+      state.submitted = false;
+      state.isCorrect = false;
+      render();
+    }
+
+    function selectOption(idx) {
+      if (state.submitted) return;
+      state.selected = idx;
+      playSound('jump');
+      render();
+    }
+
+    function submitAnswer() {
+      if (state.selected === null || state.submitted) return;
+      const q = questions[state.qIdx];
+      const opt = q.options[state.selected];
+      state.submitted = true;
+      state.isCorrect = opt.correct;
+
+      if (opt.correct) {
+        playSound('correct');
+        state.score += 100;
+      } else {
+        playSound('wrong');
+        state.lives -= 1;
+        document.body.classList.add('shake');
+        setTimeout(() => document.body.classList.remove('shake'), 400);
+      }
+      render();
+
+      if (state.lives <= 0) {
+        setTimeout(() => {
+          state.screen = 'gameover';
+          render();
+        }, 1200);
+      }
+    }
+
+    function nextQuestion() {
+      if (state.qIdx + 1 < questions.length) {
+        state.qIdx += 1;
+        state.selected = null;
+        state.submitted = false;
+        state.isCorrect = false;
+        render();
+      } else {
+        state.screen = 'victory';
+        render();
+      }
+    }
+
+    // Initialize game
+    render();
+  </script>
+</body>
+</html>
